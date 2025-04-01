@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>學生資料表</title>
+</head>
+<body>
+  <h2>學生名單</h2>
+  <ul id="studentList">讀取中...</ul>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const supabaseUrl = "https://axqdokunhkmcqbwcnita.supabase.co"; // <-- 替換為您自己的
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4cWRva3VuaGttY3Fid2NuaXRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1MTM3ODcsImV4cCI6MjA1OTA4OTc4N30._vtPXq_GoLCjgqydyJe2AHXtiv1uZaPNRj_DyQNKjeo";             // <-- 替換為您的 anon key
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    async function loadStudents() {
+      const { data, error } = await supabase
+        .from("student")
+        .select("*")
+        .order("id");
+
+      const list = document.getElementById("studentList");
+      list.innerHTML = "";
+
+      if (error) {
+        list.innerHTML = `<li>錯誤：${error.message}</li>`;
+        return;
+      }
+
+      data.forEach((s) => {
+        const li = document.createElement("li");
+        li.textContent = `${s.name}：${s.score} 分`;
+        list.appendChild(li);
+      });
+    }
+
+    loadStudents();
+  </script>
+</body>
+</html>
