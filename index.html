@@ -47,7 +47,7 @@
 
     async function loadStudents() {
       const { data, error } = await supabase
-        .from("student")
+        .from("students")
         .select("*")
         .order("id");
 
