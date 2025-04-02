@@ -86,7 +86,7 @@
             const newName = nameInput.value;
             const newScore = parseInt(scoreInput.value);
             const { error } = await supabase
-              .from("student")
+              .from("students")
               .update({ name: newName, score: newScore })
               .eq("id", s.id);
             if (error) {
@@ -106,7 +106,7 @@
         delBtn.onclick = async () => {
           if (confirm(`確定要刪除 ${s.name} 嗎？`)) {
             const { error } = await supabase
-              .from("student")
+              .from("students")
               .delete()
               .eq("id", s.id);
             if (error) {
@@ -146,7 +146,7 @@
       }
 
       const { error } = await supabase
-        .from("student")
+        .from("students")
         .insert([{ name, score }]);
 
       if (error) {
