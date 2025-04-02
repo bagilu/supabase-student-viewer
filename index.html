@@ -9,12 +9,35 @@
   <ul id="studentList">讀取中...</ul>
   <p id="lastUpdated" style="color: gray; font-size: 0.9em;">尚未更新</p>
 
+  <hr>
+
+  <h3>新增學生</h3>
+  <form id="addStudentForm">
+    <label>
+      姓名：
+      <input type="text" id="nameInput" required />
+    </label>
+    <label>
+      分數：
+      <input type="number" id="scoreInput" required />
+    </label>
+    <button type="submit">新增學生</button>
+  </form>
+  <p id="formMessage" style="color: green;"></p>
+
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    const supabaseUrl = "https://axqdokunhkmcqbwcnita.supabase.co";       // ← 替換為您的 Supabase 專案網址
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4cWRva3VuaGttY3Fid2NuaXRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1MTM3ODcsImV4cCI6MjA1OTA4OTc4N30._vtPXq_GoLCjgqydyJe2AHXtiv1uZaPNRj_DyQNKjeo";                   // ← 替換為您的 anon key
+    const supabaseUrl = "https://axqdokunhkmcqbwcnita.supabase.co";      // ← 替換為您的 Supabase 專案網址
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4cWRva3VuaGttY3Fid2NuaXRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1MTM3ODcsImV4cCI6MjA1OTA4OTc4N30._vtPXq_GoLCjgqydyJe2AHXtiv1uZaPNRj_DyQNKjeo";                  // ← 替換為您的 anon key
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const list = document.getElementById("studentList");
+    const updateText = document.getElementById("lastUpdated");
+    const form = document.getElementById("addStudentForm");
+    const nameInput = document.getElementById("nameInput");
+    const scoreInput = document.getElementById("scoreInput");
+    const formMessage = document.getElementById("formMessage");
 
     async function loadStudents() {
       const { data, error } = await supabase
@@ -22,8 +45,6 @@
         .select("*")
         .order("id");
 
-      const list = document.getElementById("studentList");
-      const updateText = document.getElementById("lastUpdated");
       list.innerHTML = "";
 
       if (error) {
@@ -38,7 +59,6 @@
         list.appendChild(li);
       });
 
-      // ✅ 更新時間顯示
       const now = new Date().toLocaleString("zh-TW", { hour12: false });
       updateText.innerText = `最後更新時間：${now}`;
     }
@@ -48,6 +68,37 @@
 
     // 每 5 秒自動更新
     setInterval(loadStudents, 5000);
+
+    // 處理新增表單
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      const score = parseInt(scoreInput.value);
+
+      if (!name || isNaN(score)) {
+        formMessage.textContent = "請輸入有效的姓名與分數";
+        formMessage.style.color = "red";
+        return;
+      }
+
+      const { error } = await supabase
+        .from("student")
+        .insert([{ name, score }]);
+
+      if (error) {
+        formMessage.textContent = `新增失敗：${error.message}`;
+        formMessage.style.color = "red";
+        return;
+      }
+
+      formMessage.textContent = "✅ 新增成功！";
+      formMessage.style.color = "green";
+      nameInput.value = "";
+      scoreInput.value = "";
+
+      // 立刻重新載入
+      loadStudents();
+    });
   </script>
 </body>
 </html>
