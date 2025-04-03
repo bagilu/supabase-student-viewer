@@ -34,8 +34,8 @@
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    const supabaseUrl = "https://jwqomxsavhoeljtrtnld.supabase.co";   // ← 您的 Supabase URL
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3cW9teHNhdmhvZWxqdHJ0bmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MDkyOTQsImV4cCI6MjA1ODk4NTI5NH0.JlFkZ6_jKzUWF-N_pp223W0eOOEQztxPA_bIGNzbL4A";               // ← 您的 anon key
+    const supabaseUrl = "https://axqdokunhkmcqbwcnita.supabase.co";   // ← 您的 Supabase URL
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4cWRva3VuaGttY3Fid2NuaXRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1MTM3ODcsImV4cCI6MjA1OTA4OTc4N30._vtPXq_GoLCjgqydyJe2AHXtiv1uZaPNRj_DyQNKjeo";               // ← 您的 anon key
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const list = document.getElementById("studentList");
@@ -47,7 +47,7 @@
 
     async function loadStudents() {
       const { data, error } = await supabase
-        .from("students")
+        .from("student")
         .select("*")
         .order("id");
 
@@ -86,7 +86,7 @@
             const newName = nameInput.value;
             const newScore = parseInt(scoreInput.value);
             const { error } = await supabase
-              .from("students")
+              .from("student")
               .update({ name: newName, score: newScore })
               .eq("id", s.id);
             if (error) {
@@ -106,7 +106,7 @@
         delBtn.onclick = async () => {
           if (confirm(`確定要刪除 ${s.name} 嗎？`)) {
             const { error } = await supabase
-              .from("students")
+              .from("student")
               .delete()
               .eq("id", s.id);
             if (error) {
@@ -146,7 +146,7 @@
       }
 
       const { error } = await supabase
-        .from("students")
+        .from("student")
         .insert([{ name, score }]);
 
       if (error) {
