@@ -89,6 +89,44 @@
       }
 
       for (const s of data) {
+
+// 建立圖表資料
+const names = data.map(s => s.name);
+const scores = data.map(s => s.score);
+
+// 如果圖表已存在就更新資料，否則建立新圖表
+if (window.scoreChartInstance) {
+  window.scoreChartInstance.data.labels = names;
+  window.scoreChartInstance.data.datasets[0].data = scores;
+  window.scoreChartInstance.update();
+} else {
+  const ctx = document.getElementById("scoreChart").getContext("2d");
+  window.scoreChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: names,
+      datasets: [{
+        label: '分數',
+        data: scores,
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          suggestedMax: 100
+        }
+      }
+    }
+  });
+}
+
+
+
         const tr = document.createElement("tr");
 
         const nameTd = document.createElement("td");
@@ -161,42 +199,6 @@
 
     loadStudents();
     setInterval(loadStudents, 5000);
-
-// 建立圖表資料
-const names = data.map(s => s.name);
-const scores = data.map(s => s.score);
-
-// 如果圖表已存在就更新資料，否則建立新圖表
-if (window.scoreChartInstance) {
-  window.scoreChartInstance.data.labels = names;
-  window.scoreChartInstance.data.datasets[0].data = scores;
-  window.scoreChartInstance.update();
-} else {
-  const ctx = document.getElementById("scoreChart").getContext("2d");
-  window.scoreChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: names,
-      datasets: [{
-        label: '分數',
-        data: scores,
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          suggestedMax: 100
-        }
-      }
-    }
-  });
-}
-
 
 
     form.addEventListener("submit", async (e) => {
