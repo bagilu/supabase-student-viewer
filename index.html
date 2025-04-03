@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>學生資料表</title>
+  <style>
+    button { margin-left: 8px; }
+    input.inline-edit {
+      width: 100px;
+    }
+  </style>
 </head>
 <body>
   <h2>學生名單（每 5 秒自動更新）</h2>
@@ -55,7 +61,66 @@
 
       data.forEach((s) => {
         const li = document.createElement("li");
-        li.textContent = `${s.name}：${s.score} 分`;
+
+        // 內嵌編輯欄位
+        const nameInput = document.createElement("input");
+        nameInput.value = s.name;
+        nameInput.className = "inline-edit";
+        nameInput.disabled = true;
+
+        const scoreInput = document.createElement("input");
+        scoreInput.type = "number";
+        scoreInput.value = s.score;
+        scoreInput.className = "inline-edit";
+        scoreInput.disabled = true;
+
+        // 編輯按鈕
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "編輯";
+        editBtn.onclick = async () => {
+          if (editBtn.textContent === "編輯") {
+            nameInput.disabled = false;
+            scoreInput.disabled = false;
+            editBtn.textContent = "儲存";
+          } else {
+            const newName = nameInput.value;
+            const newScore = parseInt(scoreInput.value);
+            const { error } = await supabase
+              .from("student")
+              .update({ name: newName, score: newScore })
+              .eq("id", s.id);
+            if (error) {
+              alert("更新失敗：" + error.message);
+            } else {
+              nameInput.disabled = true;
+              scoreInput.disabled = true;
+              editBtn.textContent = "編輯";
+              loadStudents(); // 更新畫面
+            }
+          }
+        };
+
+        // 刪除按鈕
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "刪除";
+        delBtn.onclick = async () => {
+          if (confirm(`確定要刪除 ${s.name} 嗎？`)) {
+            const { error } = await supabase
+              .from("student")
+              .delete()
+              .eq("id", s.id);
+            if (error) {
+              alert("刪除失敗：" + error.message);
+            } else {
+              loadStudents(); // 更新畫面
+            }
+          }
+        };
+
+        li.appendChild(nameInput);
+        li.appendChild(scoreInput);
+        li.appendChild(editBtn);
+        li.appendChild(delBtn);
         list.appendChild(li);
       });
 
@@ -69,12 +134,11 @@
     // 每 5 秒自動更新
     setInterval(loadStudents, 5000);
 
-    // 處理新增表單
+    // 新增表單處理
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = nameInput.value.trim();
       const score = parseInt(scoreInput.value);
-
       if (!name || isNaN(score)) {
         formMessage.textContent = "請輸入有效的姓名與分數";
         formMessage.style.color = "red";
@@ -88,16 +152,13 @@
       if (error) {
         formMessage.textContent = `新增失敗：${error.message}`;
         formMessage.style.color = "red";
-        return;
+      } else {
+        formMessage.textContent = "✅ 新增成功！";
+        formMessage.style.color = "green";
+        nameInput.value = "";
+        scoreInput.value = "";
+        loadStudents();
       }
-
-      formMessage.textContent = "✅ 新增成功！";
-      formMessage.style.color = "green";
-      nameInput.value = "";
-      scoreInput.value = "";
-
-      // 立刻重新載入
-      loadStudents();
     });
   </script>
 </body>
